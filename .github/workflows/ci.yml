@@ -69,8 +69,29 @@ jobs:
         run: |
           # Start backend container in background
           docker run -d --name test-backend -p 8000:8000 pii-backend
-          sleep 10
-          # Quick health check
-          curl -f http://localhost:8000/logs || exit 1
+          
+          # Wait for container to start and show logs if it fails
+          echo "Waiting for container to start..."
+          sleep 15
+          
+          # Check if container is running
+          if ! docker ps | grep test-backend; then
+            echo "Container failed to start. Logs:"
+            docker logs test-backend
+            exit 1
+          fi
+          
+          # Wait a bit more for the app to be ready
+          sleep 5
+          
+          # Quick health check with better error handling
+          echo "Testing health check..."
+          if ! curl -f http://localhost:8000/logs; then
+            echo "Health check failed. Container logs:"
+            docker logs test-backend
+            exit 1
+          fi
+          
+          echo "Health check passed!"
           docker stop test-backend
           docker rm test-backend

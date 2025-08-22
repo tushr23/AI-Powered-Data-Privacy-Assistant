@@ -3,8 +3,15 @@ from fastapi.responses import JSONResponse
 import uvicorn
 import os
 import logging
-from .pii_scanner import scan_text, redact_text, score_privacy_risk
-from . import db
+
+# Handle both relative and absolute imports for flexibility
+try:
+    from .pii_scanner import scan_text, redact_text, score_privacy_risk
+    from . import db
+except ImportError:
+    # Fallback to absolute imports when running directly
+    from pii_scanner import scan_text, redact_text, score_privacy_risk
+    import db
 
 logging.basicConfig(level=logging.INFO)
 
