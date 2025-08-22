@@ -8,7 +8,12 @@ try:
 except Exception:
     _SPACY_AVAILABLE = False
 
-from transformers import pipeline
+try:
+    from transformers import pipeline
+    _TRANSFORMERS_AVAILABLE = True
+except Exception:
+    _TRANSFORMERS_AVAILABLE = False
+    pipeline = None
 
 _HF_NER = None
 _HF_CLASSIFIER = None
@@ -16,6 +21,8 @@ _HF_CLASSIFIER = None
 
 def _init_hf_models():
     global _HF_NER, _HF_CLASSIFIER
+    if not _TRANSFORMERS_AVAILABLE:
+        return
     if _HF_NER is None:
         try:
             _HF_NER = pipeline("ner", model="dbmdz/bert-large-cased-finetuned-conll03-english", grouped_entities=True)
