@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend:
+    image: tushr23/pii-backend:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_NAME=/app/data/pii_audit.db
+    volumes:
+      - ./data:/app/data
+
+  dashboard:
+    image: tushr23/pii-dashboard:latest
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_URL=http://backend:8000
+
+volumes:
+  data:

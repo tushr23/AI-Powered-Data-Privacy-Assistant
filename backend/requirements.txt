@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+transformers
+spacy
+pytest
+slowapi
+python-dotenv
+python-multipart
