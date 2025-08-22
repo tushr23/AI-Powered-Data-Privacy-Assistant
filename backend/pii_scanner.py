@@ -2,7 +2,7 @@
 import re
 from typing import List, Dict
 
-# Lazy imports to avoid hanging on missing models
+# Spacy - lazy import to avoid hanging on model downloads
 _SPACY_AVAILABLE = None
 _spacy = None
 
@@ -18,7 +18,10 @@ def _check_spacy():
             _spacy = None
     return _SPACY_AVAILABLE
 
-# Lazy import transformers only when needed
+# Initialize spacy availability check on module import
+_check_spacy()
+
+# Transformers - lazy import to avoid hanging
 _TRANSFORMERS_AVAILABLE = None
 pipeline = None
 
