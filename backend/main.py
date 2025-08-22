@@ -3,8 +3,8 @@ from fastapi.responses import JSONResponse
 import uvicorn
 import os
 import logging
-from pii_scanner import scan_text, redact_text, score_privacy_risk
-import db
+from .pii_scanner import scan_text, redact_text, score_privacy_risk
+from . import db
 
 logging.basicConfig(level=logging.INFO)
 
