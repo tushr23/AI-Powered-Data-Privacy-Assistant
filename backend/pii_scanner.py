@@ -2,18 +2,37 @@
 import re
 from typing import List, Dict
 
-try:
-    import spacy
-    _SPACY_AVAILABLE = True
-except Exception:
-    _SPACY_AVAILABLE = False
+# Lazy imports to avoid hanging on missing models
+_SPACY_AVAILABLE = None
+_spacy = None
 
-try:
-    from transformers import pipeline
-    _TRANSFORMERS_AVAILABLE = True
-except Exception:
-    _TRANSFORMERS_AVAILABLE = False
-    pipeline = None
+def _check_spacy():
+    global _SPACY_AVAILABLE, _spacy
+    if _SPACY_AVAILABLE is None:
+        try:
+            import spacy
+            _spacy = spacy
+            _SPACY_AVAILABLE = True
+        except Exception:
+            _SPACY_AVAILABLE = False
+            _spacy = None
+    return _SPACY_AVAILABLE
+
+# Lazy import transformers only when needed
+_TRANSFORMERS_AVAILABLE = None
+pipeline = None
+
+def _check_transformers():
+    global _TRANSFORMERS_AVAILABLE, pipeline
+    if _TRANSFORMERS_AVAILABLE is None:
+        try:
+            from transformers import pipeline as _pipeline
+            pipeline = _pipeline
+            _TRANSFORMERS_AVAILABLE = True
+        except Exception:
+            _TRANSFORMERS_AVAILABLE = False
+            pipeline = None
+    return _TRANSFORMERS_AVAILABLE
 
 _HF_NER = None
 _HF_CLASSIFIER = None
@@ -21,7 +40,7 @@ _HF_CLASSIFIER = None
 
 def _init_hf_models():
     global _HF_NER, _HF_CLASSIFIER
-    if not _TRANSFORMERS_AVAILABLE:
+    if not _check_transformers():
         return
     if _HF_NER is None:
         try:
@@ -38,11 +57,15 @@ def _init_hf_models():
             _HF_CLASSIFIER = None
 
 _SPACY_NLP = None
-if _SPACY_AVAILABLE:
-    try:
-        _SPACY_NLP = spacy.load("en_core_web_sm")
-    except Exception:
-        _SPACY_NLP = None
+
+def _load_spacy_model():
+    global _SPACY_NLP
+    if _SPACY_NLP is None and _check_spacy():
+        try:
+            _SPACY_NLP = _spacy.load("en_core_web_sm")
+        except Exception:
+            _SPACY_NLP = None
+    return _SPACY_NLP
 
 PII_PATTERNS = {
     "email": re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"),
@@ -69,9 +92,10 @@ def _regex_scan(text: str) -> List[Dict]:
 
 def _spacy_scan(text: str) -> List[Dict]:
     results = []
-    if not _SPACY_NLP:
+    nlp = _load_spacy_model()
+    if not nlp:
         return results
-    doc = _SPACY_NLP(text)
+    doc = nlp(text)
     for ent in doc.ents:
         results.append({
             "type": ent.label_.lower(),
