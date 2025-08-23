@@ -475,3 +475,76 @@ def test_scan_text_hf_classifier_init_exception(monkeypatch):
     result = ps.scan_text('test@example.com', use_spacy=False, use_hf=False, use_regex=True)
     assert len(result) > 0  # Should find email
     assert any(f['type'] == 'email' for f in result)
+
+
+# File utilities tests
+def test_extract_text_from_file_no_filename():
+    """Test extraction with no filename."""
+    from backend.file_utils import extract_text_from_file
+    content = b"test content"
+    result = extract_text_from_file(content, "")
+    assert result == "test content"
+
+
+def test_extract_text_from_file_txt():
+    """Test extraction from .txt file."""
+    from backend.file_utils import extract_text_from_file
+    content = b"hello world"
+    result = extract_text_from_file(content, "test.txt")
+    assert result == "hello world"
+
+
+def test_extract_text_from_file_pdf():
+    """Test extraction from .pdf file (will fail gracefully)."""
+    from backend.file_utils import extract_text_from_file
+    content = b"not a real pdf"
+    result = extract_text_from_file(content, "test.pdf")
+    assert result == ""
+
+
+def test_extract_text_from_file_docx():
+    """Test extraction from .docx file (will fail gracefully)."""
+    from backend.file_utils import extract_text_from_file
+    content = b"not a real docx"
+    result = extract_text_from_file(content, "test.docx")
+    assert result == ""
+
+
+def test_decode_text_utf8():
+    """Test UTF-8 decoding."""
+    from backend.file_utils import _decode_text
+    content = b"hello world"
+    result = _decode_text(content)
+    assert result == "hello world"
+
+
+def test_decode_text_latin1():
+    """Test Latin-1 fallback decoding."""
+    from backend.file_utils import _decode_text
+    content = b"\xe9\xe8"
+    result = _decode_text(content)
+    assert result == "éè"
+
+
+def test_decode_text_invalid():
+    """Test invalid byte sequence."""
+    from backend.file_utils import _decode_text
+    content = b"\xff\xfe"
+    result = _decode_text(content)
+    assert isinstance(result, str)
+
+
+def test_extract_pdf_text_exception():
+    """Test PDF extraction with invalid content."""
+    from backend.file_utils import _extract_pdf_text
+    content = b"invalid pdf content"
+    result = _extract_pdf_text(content)
+    assert result == ""
+
+
+def test_extract_docx_text_exception():
+    """Test DOCX extraction with invalid content."""
+    from backend.file_utils import _extract_docx_text
+    content = b"invalid docx content"
+    result = _extract_docx_text(content)
+    assert result == ""
