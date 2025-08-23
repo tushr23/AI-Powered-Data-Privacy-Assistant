@@ -70,23 +70,17 @@ async def redact_endpoint(request: Request):
 @app.post("/upload")
 async def upload_endpoint(file: UploadFile = File(...)):
     contents = await file.read()
-    
-    # Extract text based on file type
     text = extract_text_from_file(contents, file.filename or "")
-    
-    # If extraction failed and we have no text, log it but continue
-    if not text:
-        logging.warning(f"No text extracted from file: {file.filename}")
     
     findings = scan_text(text)
     risk_score = score_privacy_risk(findings)
     db.add_log('upload', text, findings, risk_score)
+    
     return JSONResponse(content={
         "message": "uploaded", 
         "filename": file.filename, 
         "findings": findings, 
-        "risk_score": risk_score,
-        "text_length": len(text)
+        "risk_score": risk_score
     })
 
 @app.get("/logs")
