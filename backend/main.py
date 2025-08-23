@@ -4,13 +4,11 @@ import uvicorn
 import os
 import logging
 
-# Handle both relative and absolute imports for flexibility
 try:
     from .pii_scanner import scan_text, redact_text, score_privacy_risk
     from .file_utils import extract_text_from_file
     from . import db
 except ImportError:
-    # Fallback to absolute imports when running directly
     from pii_scanner import scan_text, redact_text, score_privacy_risk
     from file_utils import extract_text_from_file
     import db
@@ -24,14 +22,11 @@ app = FastAPI(title="AI-Powered Data Privacy Assistant",
 
 @app.on_event("startup")
 def startup_event():
-    # Ensure DB schema exists before handling requests or tests run
     logging.info("Creating DB tables on startup using DATABASE_NAME=%s", os.environ.get("DATABASE_NAME"))
-    # Let exceptions propagate so tests fail loudly if DB can't be created
     db.create_table()
 
 @app.post("/scan")
 async def scan_endpoint(request: Request):
-    # Accept JSON or form-encoded requests to remain compatible with tests/clients
     text = ""
     try:
         payload = await request.json()

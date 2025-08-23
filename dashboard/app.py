@@ -5,14 +5,12 @@ import os
 
 
 def run_app():
-    # Get API base URL from environment or use default
     API_BASE = os.getenv("BACKEND_URL", "http://localhost:8000")
     
-    # Try to get from secrets if available, but don't fail if not found
     try:
         API_BASE = st.secrets.get("API_BASE", API_BASE)
     except Exception:
-        pass  # Secrets file not found, use environment or default
+        pass
 
     st.set_page_config(page_title="AI-Powered Data Privacy Assistant", page_icon=":shield:", layout="wide")
     st.title("AI-Powered Data Privacy Assistant")

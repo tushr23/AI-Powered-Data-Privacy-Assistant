@@ -2,7 +2,6 @@
 import re
 from typing import List, Dict
 
-# Spacy - lazy import to avoid hanging on model downloads
 _SPACY_AVAILABLE = None
 _spacy = None
 
@@ -18,10 +17,8 @@ def _check_spacy():
             _spacy = None
     return _SPACY_AVAILABLE
 
-# Initialize spacy availability check on module import
 _check_spacy()
 
-# Transformers - lazy import to avoid hanging
 _TRANSFORMERS_AVAILABLE = None
 pipeline = None
 
@@ -72,9 +69,9 @@ def _load_spacy_model():
 
 PII_PATTERNS = {
     "email": re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"),
-    "phone": re.compile(r"\b(?:\+?\d{1,3}[- ]?)?(?:\(?\d{3}\)?[- ]?\d{3}[- ]?\d{4}|\d{7,12})\b"),
+    "phone": re.compile(r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b"),
     "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
-    "credit_card": re.compile(r"\b(?:\d[ -]?){13,16}\b")
+    "credit_card": re.compile(r"\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b")
 }
 
 
@@ -150,10 +147,6 @@ def _dedupe_findings(findings: List[Dict]) -> List[Dict]:
 
 
 def scan_text(text: str, use_spacy: bool = True, use_hf: bool = True, use_regex: bool = True) -> List[Dict]:
-    """Run multiple detectors and return a deduplicated list of findings.
-
-    Each finding: { type, value, start, end, source, confidence }
-    """
     findings: List[Dict] = []
     if use_regex:
         findings.extend(_regex_scan(text))
@@ -165,9 +158,7 @@ def scan_text(text: str, use_spacy: bool = True, use_hf: bool = True, use_regex:
     try:
         if _HF_CLASSIFIER is None:
             _init_hf_models()
-        # we avoid running a full classifier on long texts by default; leave hook for future
     except Exception:
-        # best-effort only; never fail the scan
         return _dedupe_findings(findings)
 
     return _dedupe_findings(findings)
@@ -200,7 +191,6 @@ def redact_text(text: str, placeholder: str = "[REDACTED]") -> str:
 
 
 def score_privacy_risk(findings: List[Dict]) -> int:
-    """Simple risk scoring: high weight for direct identifiers, lower for named entities."""
     if not findings:
         return 0
     score = 0
@@ -215,6 +205,5 @@ def score_privacy_risk(findings: List[Dict]) -> int:
         else:
             score += 5
 
-    score = min(int(score), 100)
-    return score
+    return min(int(score), 100)
 

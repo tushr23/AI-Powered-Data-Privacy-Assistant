@@ -140,7 +140,7 @@ docker run -p 8501:8501 pii-dashboard
 
 ## Credits
 
-Built by **Tushr Verma** - Developer focused on AI and data privacy solutions.
+Built by **Tushr Verma**
 
 Contact: Tushrverma23@gmail.com | GitHub: [@tushr23](https://github.com/tushr23)
 
