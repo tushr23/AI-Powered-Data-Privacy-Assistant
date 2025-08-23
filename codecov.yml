@@ -1,0 +1,15 @@
+# Codecov configuration file
+coverage:
+  status:
+    project:
+      default:
+        target: 100%
+        threshold: 1%
+    patch:
+      default:
+        target: 100%
+
+ignore:
+  - "setup.py"
+  - "test/"
+  - "**/__pycache__/"

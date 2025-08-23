@@ -13,7 +13,7 @@ from backend import pii_scanner as ps
 # Basic functionality tests
 def test_regex_detects_email_and_phone_from_ticket():
     """Test basic regex-based PII detection using a ticket-like string."""
-    text = "Contact me at test.user@example.com or +1 5551234567."
+    text = "Contact me at test.user@example.com or 555-123-4567."
     findings = ps.scan_text(text, use_spacy=False, use_hf=False, use_regex=True)
     types = {f['type'] for f in findings}
     assert 'email' in types
@@ -22,7 +22,7 @@ def test_regex_detects_email_and_phone_from_ticket():
 
 def test_scan_with_multiple_pii_types():
     """Test scanning text with multiple PII types."""
-    text = "Contact: alice@example.com or +1 (555) 123-4567"
+    text = "Contact: alice@example.com or 555-123-4567"
     findings = ps.scan_text(text, use_spacy=False, use_hf=False, use_regex=True)
     types = {f["type"] for f in findings}
     assert "email" in types

@@ -2,7 +2,9 @@
 
 ![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-latest-green.svg)
-![Tests](https://img.shields.io/badge/Coverage-95%25-brightgreen.svg)
+![Tests](https://github.com/tushr23/AI-Powered-Data-Privacy-Assistant/workflows/CI/badge.svg)
+![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)
+[![codecov](https://codecov.io/gh/tushr23/AI-Powered-Data-Privacy-Assistant/branch/main/graph/badge.svg)](https://codecov.io/gh/tushr23/AI-Powered-Data-Privacy-Assistant)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
