@@ -8,3 +8,5 @@ python-dotenv
 python-multipart
 httpx
 pytest-cov
+pypdf
+python-docx

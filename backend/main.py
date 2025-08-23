@@ -7,10 +7,12 @@ import logging
 # Handle both relative and absolute imports for flexibility
 try:
     from .pii_scanner import scan_text, redact_text, score_privacy_risk
+    from .file_utils import extract_text_from_file
     from . import db
 except ImportError:
     # Fallback to absolute imports when running directly
     from pii_scanner import scan_text, redact_text, score_privacy_risk
+    from file_utils import extract_text_from_file
     import db
 
 logging.basicConfig(level=logging.INFO)
@@ -68,14 +70,24 @@ async def redact_endpoint(request: Request):
 @app.post("/upload")
 async def upload_endpoint(file: UploadFile = File(...)):
     contents = await file.read()
-    try:
-        text = contents.decode("utf-8")
-    except Exception:
-        text = ""
+    
+    # Extract text based on file type
+    text = extract_text_from_file(contents, file.filename or "")
+    
+    # If extraction failed and we have no text, log it but continue
+    if not text:
+        logging.warning(f"No text extracted from file: {file.filename}")
+    
     findings = scan_text(text)
     risk_score = score_privacy_risk(findings)
     db.add_log('upload', text, findings, risk_score)
-    return JSONResponse(content={"message": "uploaded", "filename": file.filename, "findings": findings, "risk_score": risk_score})
+    return JSONResponse(content={
+        "message": "uploaded", 
+        "filename": file.filename, 
+        "findings": findings, 
+        "risk_score": risk_score,
+        "text_length": len(text)
+    })
 
 @app.get("/logs")
 async def get_logs():
